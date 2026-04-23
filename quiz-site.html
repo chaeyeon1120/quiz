@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>클래스 퀴즈</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1827;
+    --card: #22203a;
+    --accent: #f4c430;
+    --accent2: #e86a3a;
+    --text: #fffffe;
+    --muted: #a7a9be;
+    --success: #2ec4b6;
+    --error: #e84545;
+    --border: rgba(255,255,255,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  /* Background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(244,196,48,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, rgba(232,106,58,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 40px 0 30px;
+  }
+  header .label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-family: 'Gowun Batang', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  header h1 span {
+    color: var(--accent);
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 6px;
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    background: transparent;
+    color: var(--muted);
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #0f0e17;
+    font-weight: 700;
+  }
+  .tab-btn:hover:not(.active) {
+    color: var(--text);
+    background: var(--border);
+  }
+
+  /* Panel */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  /* Form */
+  label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  input[type="text"], textarea, input[type="password"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 18px;
+  }
+  input[type="text"]:focus, textarea:focus, input[type="password"]:focus {
+    border-color: var(--accent);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 90px;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0f0e17;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn-danger {
+    background: transparent;
+    color: var(--error);
+    border: 1px solid var(--error);
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+  .btn-danger:hover { background: var(--error); color: white; }
+
+  /* Question list */
+  .q-list { list-style: none; }
+  .q-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+  .q-item:hover { border-color: rgba(244,196,48,0.3); }
+  .q-num {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #0f0e17;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .q-content { flex: 1; }
+  .q-text { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .q-answer { font-size: 13px; color: var(--muted); }
+  .q-answer span { color: var(--success); font-weight: 500; }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty p { font-size: 15px; }
+
+  /* QUIZ PANEL */
+  .quiz-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--surface);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+  .progress-text {
+    font-size: 13px;
+    color: var(--muted);
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  .question-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 24px;
+    padding: 40px 36px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .q-badge {
+    display: inline-block;
+    background: rgba(244,196,48,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(244,196,48,0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .question-text {
+    font-family: 'Gowun Batang', serif;
+    font-size: clamp(20px, 4vw, 30px);
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .answer-area {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+  .answer-area label {
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--muted);
+  }
+  .answer-input-wrap {
+    display: flex;
+    gap: 10px;
+  }
+  .answer-input-wrap input {
+    margin-bottom: 0;
+    flex: 1;
+    font-size: 16px;
+  }
+  .answer-input-wrap .btn {
+    white-space: nowrap;
+    padding: 14px 22px;
+    width: auto;
+  }
+
+  /* Feedback */
+  .feedback {
+    border-radius: 14px;
+    padding: 16px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    animation: fadeIn 0.3s ease;
+  }
+  .feedback.show { display: flex; }
+  .feedback.correct { background: rgba(46,196,182,0.12); border: 1px solid rgba(46,196,182,0.3); color: var(--success); }
+  .feedback.wrong { background: rgba(232,69,69,0.10); border: 1px solid rgba(232,69,69,0.3); color: var(--error); }
+  .feedback-icon { font-size: 22px; }
+
+  /* Score screen */
+  .score-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 4px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28px;
+    background: rgba(244,196,48,0.05);
+  }
+  .score-num {
+    font-family: 'Gowun Batang', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .score-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .score-title {
+    font-family: 'Gowun Batang', serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .score-sub { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+
+  /* Password modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .modal-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+  }
+  .modal-icon { font-size: 40px; margin-bottom: 16px; }
+  .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .modal-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+  .modal-error { color: var(--error); font-size: 13px; margin-top: -10px; margin-bottom: 14px; display: none; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .shake { animation: shake 0.3s ease; }
+
+  /* Stats row */
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-val {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Gowun Batang', serif;
+  }
+  .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .no-quiz {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .no-quiz .icon { font-size: 52px; margin-bottom: 16px; }
+  .no-quiz p { font-size: 15px; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<!-- Password Modal -->
+<div class="modal-overlay" id="pwModal">
+  <div class="modal-box">
+    <div class="modal-icon">🔐</div>
+    <div class="modal-title">선생님 인증</div>
+    <div class="modal-sub">문제 관리 페이지에 접근하려면<br>비밀번호를 입력하세요</div>
+    <input type="password" id="pwInput" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')checkPw()">
+    <div class="modal-error" id="pwError">❌ 비밀번호가 틀렸어요</div>
+    <button class="btn btn-primary" onclick="checkPw()">확인</button>
+    <div style="margin-top:14px; font-size:12px; color:var(--muted)">기본 비밀번호: <strong style="color:var(--accent)">1234</strong></div>
+  </div>
+</div>
+
+<div class="wrapper">
+  <header>
+    <div class="label">✦ Classroom Quiz ✦</div>
+    <h1>클래스<span>퀴즈</span></h1>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('quiz')">📝 퀴즈 풀기</button>
+    <button class="tab-btn" onclick="switchTab('admin')" id="adminTabBtn">🔑 문제 관리</button>
+  </div>
+
+  <!-- QUIZ PANEL -->
+  <div class="panel active" id="panel-quiz">
+
+    <!-- No questions state -->
+    <div id="noQuizState" class="card no-quiz" style="display:none">
+      <div class="icon">🎯</div>
+      <p>아직 등록된 문제가 없어요.<br>선생님께서 문제를 먼저 등록해 주세요!</p>
+    </div>
+
+    <!-- Quiz active -->
+    <div id="quizState" style="display:none">
+      <div class="quiz-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">1 / 1</div>
+      </div>
+
+      <div class="question-card">
+        <div class="q-badge" id="qBadge">문제 1</div>
+        <div class="question-text" id="qText"></div>
+      </div>
+
+      <div class="answer-area">
+        <label>✏️ 정답을 입력하세요</label>
+        <div class="answer-input-wrap">
+          <input type="text" id="answerInput" placeholder="여기에 입력..." onkeydown="if(event.key==='Enter')checkAnswer()">
+          <button class="btn btn-primary" onclick="checkAnswer()">확인</button>
+        </div>
+        <div class="feedback" id="feedback">
+          <span class="feedback-icon" id="feedbackIcon"></span>
+          <span id="feedbackText"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Score screen -->
+    <div id="scoreState" style="display:none">
+      <div class="card score-screen">
+        <div class="score-circle">
+          <div class="score-num" id="scoreNum">0</div>
+          <div class="score-label">점</div>
+        </div>
+        <div class="score-title" id="scoreTitle"></div>
+        <div class="score-sub" id="scoreSub"></div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-val" id="statTotal"></div>
+            <div class="stat-lbl">전체 문제</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="statAttempts"></div>
+            <div class="stat-lbl">총 시도 횟수</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="restartQuiz()">🔄 다시 풀기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="panel" id="panel-admin">
+
+    <!-- Add question -->
+    <div class="card">
+      <div class="card-title">✦ 문제 추가</div>
+      <label>문제</label>
+      <textarea id="newQuestion" placeholder="문제를 입력하세요..."></textarea>
+      <label>정답</label>
+      <input type="text" id="newAnswer" placeholder="정답을 입력하세요" onkeydown="if(event.key==='Enter')addQuestion()">
+      <button class="btn btn-primary" onclick="addQuestion()">+ 문제 추가</button>
+    </div>
+
+    <!-- Question list -->
+    <div class="card">
+      <div class="card-title">✦ 등록된 문제 <span id="qCount" style="color:var(--accent)">0</span>개</div>
+      <ul class="q-list" id="qList">
+        <li>
+          <div class="empty">
+            <div class="empty-icon">📭</div>
+            <p>아직 등록된 문제가 없어요</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Settings -->
+    <div class="card">
+      <div class="card-title">✦ 설정</div>
+      <label>선생님 비밀번호 변경</label>
+      <input type="password" id="newPw" placeholder="새 비밀번호">
+      <button class="btn btn-primary" onclick="changePw()">비밀번호 변경</button>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCoci7Wq2_tRwiSv3MQUvBzh8Vqd0xOG7A",
+    authDomain: "quiz-955b7.firebaseapp.com",
+    projectId: "quiz-955b7",
+    storageBucket: "quiz-955b7.firebasestorage.app",
+    messagingSenderId: "341104666043",
+    appId: "1:341104666043:web:22aebf87f01a7637dc509e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // State
+  let questions = [];
+  let adminPw = '1234';
+  let adminUnlocked = false;
+  let currentQ = 0;
+  let totalAttempts = 0;
+
+  // === FIRESTORE 실시간 동기화 ===
+  async function loadPw() {
+    const snap = await getDoc(doc(db, 'settings', 'admin'));
+    if (snap.exists() && snap.data().pw) adminPw = snap.data().pw;
+  }
+
+  onSnapshot(collection(db, 'questions'), (snapshot) => {
+    questions = [];
+    snapshot.forEach(d => questions.push({ id: d.id, ...d.data() }));
+    questions.sort((a, b) => (a.order || 0) - (b.order || 0));
+    renderAdmin();
+    if (document.getElementById('panel-quiz').classList.contains('active')) {
+      initQuiz();
+    }
+  });
+
+  // === AUTH ===
+  window.checkPw = function() {
+    const val = document.getElementById('pwInput').value;
+    if (val === adminPw) {
+      document.getElementById('pwModal').style.display = 'none';
+      adminUnlocked = true;
+      renderAdmin();
+    } else {
+      document.getElementById('pwError').style.display = 'block';
+      document.getElementById('pwInput').classList.add('shake');
+      setTimeout(() => document.getElementById('pwInput').classList.remove('shake'), 400);
+    }
+  }
+
+  window.changePw = async function() {
+    const v = document.getElementById('newPw').value.trim();
+    if (!v) { alert('비밀번호를 입력해주세요'); return; }
+    adminPw = v;
+    await setDoc(doc(db, 'settings', 'admin'), { pw: adminPw });
+    document.getElementById('newPw').value = '';
+    alert('✅ 비밀번호가 변경되었어요!');
+  }
+
+  // === TABS ===
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', (i === 0 && tab === 'quiz') || (i === 1 && tab === 'admin'));
+    });
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+
+    if (tab === 'admin' && !adminUnlocked) {
+      document.getElementById('pwModal').style.display = 'flex';
+      document.getElementById('pwInput').value = '';
+      document.getElementById('pwError').style.display = 'none';
+    }
+    if (tab === 'quiz') initQuiz();
+  }
+
+  // === ADMIN ===
+  window.addQuestion = async function() {
+    const q = document.getElementById('newQuestion').value.trim();
+    const a = document.getElementById('newAnswer').value.trim();
+    if (!q || !a) { alert('문제와 정답을 모두 입력해주세요!'); return; }
+    await addDoc(collection(db, 'questions'), { q, a, order: Date.now() });
+    document.getElementById('newQuestion').value = '';
+    document.getElementById('newAnswer').value = '';
+  }
+
+  window.deleteQuestion = async function(id) {
+    if (!confirm('이 문제를 삭제할까요?')) return;
+    await deleteDoc(doc(db, 'questions', id));
+  }
+
+  function renderAdmin() {
+    const list = document.getElementById('qList');
+    document.getElementById('qCount').textContent = questions.length;
+    if (questions.length === 0) {
+      list.innerHTML = '<li><div class="empty"><div class="empty-icon">📭</div><p>아직 등록된 문제가 없어요</p></div></li>';
+      return;
+    }
+    list.innerHTML = questions.map((item, i) => `
+      <li class="q-item">
+        <div class="q-num">${i + 1}</div>
+        <div class="q-content">
+          <div class="q-text">${escHtml(item.q)}</div>
+          <div class="q-answer">정답: <span>${escHtml(item.a)}</span></div>
+        </div>
+        <button class="btn btn-danger" onclick="deleteQuestion('${item.id}')">삭제</button>
+      </li>
+    `).join('');
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // === QUIZ ===
+  function initQuiz() {
+    currentQ = 0;
+    totalAttempts = 0;
+    if (questions.length === 0) {
+      document.getElementById('noQuizState').style.display = 'block';
+      document.getElementById('quizState').style.display = 'none';
+      document.getElementById('scoreState').style.display = 'none';
+      return;
+    }
+    document.getElementById('noQuizState').style.display = 'none';
+    document.getElementById('scoreState').style.display = 'none';
+    document.getElementById('quizState').style.display = 'block';
+    showQuestion();
+  }
+
+  function showQuestion() {
+    const item = questions[currentQ];
+    document.getElementById('qBadge').textContent = `문제 ${currentQ + 1}`;
+    document.getElementById('qText').textContent = item.q;
+    document.getElementById('answerInput').value = '';
+    hideFeedback();
+    updateProgress();
+    setTimeout(() => document.getElementById('answerInput').focus(), 100);
+  }
+
+  function updateProgress() {
+    const pct = (currentQ / questions.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `${currentQ + 1} / ${questions.length}`;
+  }
+
+  window.checkAnswer = function() {
+    const input = document.getElementById('answerInput').value.trim();
+    const correct = questions[currentQ].a.trim();
+    totalAttempts++;
+
+    if (input.toLowerCase() === correct.toLowerCase()) {
+      showFeedback(true);
+      setTimeout(() => {
+        currentQ++;
+        if (currentQ >= questions.length) {
+          showScore();
+        } else {
+          showQuestion();
+        }
+      }, 900);
+    } else {
+      showFeedback(false);
+      document.getElementById('answerInput').value = '';
+      document.getElementById('answerInput').classList.add('shake');
+      setTimeout(() => document.getElementById('answerInput').classList.remove('shake'), 400);
+      setTimeout(() => document.getElementById('answerInput').focus(), 100);
+    }
+  }
+
+  function showFeedback(correct) {
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback show ' + (correct ? 'correct' : 'wrong');
+    document.getElementById('feedbackIcon').textContent = correct ? '✅' : '❌';
+    document.getElementById('feedbackText').textContent = correct ? '정답이에요! 🎉 다음 문제로 넘어갑니다' : '틀렸어요. 다시 시도해보세요!';
+  }
+
+  function hideFeedback() {
+    document.getElementById('feedback').className = 'feedback';
+  }
+
+  function showScore() {
+    document.getElementById('quizState').style.display = 'none';
+    document.getElementById('scoreState').style.display = 'block';
+    const total = questions.length;
+    const score = Math.round((total / totalAttempts) * 100);
+    const displayScore = Math.min(score, 100);
+
+    document.getElementById('scoreNum').textContent = displayScore;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statAttempts').textContent = totalAttempts;
+
+    let title, sub;
+    if (displayScore >= 90) { title = '완벽해요! 🏆'; sub = '모든 문제를 거의 한 번에 맞췄어요!'; }
+    else if (displayScore >= 70) { title = '잘했어요! 🌟'; sub = '조금만 더 연습하면 완벽할 거예요!'; }
+    else { title = '계속 도전해요! 💪'; sub = '틀린 문제를 복습하고 다시 도전해봐요!'; }
+    document.getElementById('scoreTitle').textContent = title;
+    document.getElementById('scoreSub').textContent = sub;
+
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressText').textContent = `${total} / ${total}`;
+  }
+
+  window.restartQuiz = function() { initQuiz(); }
+
+  // Init
+  await loadPw();
+  initQuiz();
+</script>
+</body>
+</html>
